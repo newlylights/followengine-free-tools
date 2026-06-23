@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitor Finder — Free Tool | FollowEngine</title>
+<meta name="description" content="Find competitors for any domain. Free competitor discovery tool. Enter a URL and get a list of similar companies.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; }
+.container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
+.back { color: #22c55e; text-decoration: none; font-size: 0.9rem; margin-bottom: 32px; display: inline-block; }
+h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+.subtitle { color: #a1a1aa; margin-bottom: 32px; }
+.search-box { display: flex; gap: 12px; margin-bottom: 40px; }
+.search-box input { flex: 1; padding: 14px 20px; border-radius: 12px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; font-size: 1rem; }
+.search-box input:focus { outline: none; border-color: #22c55e; }
+.search-box button { padding: 14px 28px; background: #22c55e; color: #000; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; }
+.search-box button:hover { background: #16a34a; }
+.results { display: none; }
+.result-card { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+.result-card .rank { background: #22c55e20; color: #22c55e; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.result-card .info { flex: 1; }
+.result-card .info h4 { font-size: 1rem; margin-bottom: 4px; }
+.result-card .info .domain { color: #22c55e; font-size: 0.85rem; margin-bottom: 4px; }
+.result-card .info .desc { color: #a1a1aa; font-size: 0.85rem; }
+.result-card .score { font-size: 0.8rem; color: #71717a; flex-shrink: 0; }
+.cta { text-align: center; margin-top: 48px; padding: 32px; background: #18181b; border: 1px solid #27272a; border-radius: 16px; }
+.cta p { color: #a1a1aa; margin-bottom: 16px; }
+.cta a { display: inline-block; background: #22c55e; color: #000; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; }
+.footer { text-align: center; padding: 40px 0; color: #71717a; font-size: 0.85rem; }
+.footer a { color: #22c55e; text-decoration: none; }
+.loading { text-align: center; padding: 40px; color: #a1a1aa; display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back">← Back to Tools</a>
+  <h1>🔍 Competitor Finder</h1>
+  <p class="subtitle">Enter a domain to discover similar companies and competitors.</p>
+
+  <div class="search-box">
+    <input type="text" id="domainInput" placeholder="e.g., notion.so, figma.com, salesforce.com" onkeydown="if(event.key==='Enter')findCompetitors()">
+    <button onclick="findCompetitors()">Find Competitors</button>
+  </div>
+
+  <div class="loading" id="loading">🔎 Searching for competitors...</div>
+  <div class="results" id="results"></div>
+
+  <div class="cta">
+    <p>🚀 Want real-time competitor monitoring across ads, search, and content?</p>
+    <a href="https://followengine.com">Try FollowEngine Free →</a>
+  </div>
+</div>
+
+<div class="footer">
+  Powered by <a href="https://followengine.com">FollowEngine</a> — Competitor Growth Intelligence Platform
+</div>
+
+<script>
+const competitorDB = {
+  "notion.so": [
+    {name:"Coda", domain:"coda.io", desc:"All-in-one doc platform with databases, AI, and workflows", similarity:92},
+    {name:"Confluence", domain:"atlassian.com", desc:"Team workspace & knowledge management by Atlassian", similarity:85},
+    {name:"ClickUp", domain:"clickup.com", desc:"Project management with docs, AI, and automation", similarity:78},
+    {name:"Slite", domain:"slite.com", desc:"Collaborative knowledge base for remote teams", similarity:72},
+    {name:"Craft", domain:"craft.do", desc:"Beautiful docs and notes with powerful styling", similarity:68},
+  ],
+  "figma.com": [
+    {name:"Sketch", domain:"sketch.com", desc:"Design platform for macOS with vector editing", similarity:88},
+    {name:"Adobe XD", domain:"adobe.com", desc:"UI/UX design and prototyping by Adobe", similarity:82},
+    {name:"Canva", domain:"canva.com", desc:"Visual design platform with templates and AI", similarity:75},
+    {name:"Penpot", domain:"penpot.app", desc:"Open-source design and prototyping platform", similarity:70},
+    {name:"Framer", domain:"framer.com", desc:"Design tool with built-in publishing and CMS", similarity:68},
+  ],
+  "salesforce.com": [
+    {name:"HubSpot", domain:"hubspot.com", desc:"CRM platform with marketing, sales, and service hubs", similarity:90},
+    {name:"Zoho CRM", domain:"zoho.com", desc:"Comprehensive CRM suite with AI and automation", similarity:78},
+    {name:"Pipedrive", domain:"pipedrive.com", desc:"Sales-focused CRM with pipeline management", similarity:72},
+    {name:"Freshsales", domain:"freshworks.com", desc:"AI-powered CRM by Freshworks", similarity:65},
+    {name:"Microsoft Dynamics 365", domain:"microsoft.com", desc:"Enterprise CRM and ERP by Microsoft", similarity:82},
+  ],
+  "shopify.com": [
+    {name:"WooCommerce", domain:"woocommerce.com", desc:"Open-source ecommerce for WordPress", similarity:85},
+    {name:"BigCommerce", domain:"bigcommerce.com", desc:"Enterprise ecommerce platform", similarity:80},
+    {name:"Wix eCommerce", domain:"wix.com", desc:"Website builder with ecommerce capabilities", similarity:72},
+    {name:"Squarespace Commerce", domain:"squarespace.com", desc:"Design-focused ecommerce platform", similarity:65},
+    {name:"Magento (Adobe Commerce)", domain:"adobe.com", desc:"Enterprise open-source ecommerce", similarity:70},
+  ],
+  "slack.com": [
+    {name:"Microsoft Teams", domain:"microsoft.com", desc:"Team collaboration with video, chat, and Office integration", similarity:90},
+    {name:"Discord", domain:"discord.com", desc:"Voice, video, and text chat platform", similarity:72},
+    {name:"Google Chat", domain:"google.com", desc:"Team messaging integrated with Google Workspace", similarity:68},
+    {name:"Mattermost", domain:"mattermost.com", desc:"Open-source, self-hosted team communication", similarity:60},
+    {name:"Zoom Team Chat", domain:"zoom.com", desc:"Persistent chat alongside video meetings", similarity:58},
+  ],
+  "stripe.com": [
+    {name:"Adyen", domain:"adyen.com", desc:"Global payment platform for enterprises", similarity:75},
+    {name:"Square", domain:"squareup.com", desc:"Payment processing and POS solutions", similarity:72},
+    {name:"Braintree", domain:"braintreepayments.com", desc:"PayPal's payment gateway for developers", similarity:68},
+    {name:"Checkout.com", domain:"checkout.com", desc:"Cloud-based global payments platform", similarity:65},
+    {name:"Lemon Squeezy", domain:"lemonsqueezy.com", desc:"All-in-one payments for digital products", similarity:55},
+  ],
+  "canva.com": [
+    {name:"Adobe Express", domain:"adobe.com", desc:"Free design tool with templates and AI", similarity:80},
+    {name:"Figma", domain:"figma.com", desc:"Collaborative design platform", similarity:70},
+    {name:"Visme", domain:"visme.co", desc:"Visual content creation for presentations & infographics", similarity:68},
+    {name:"Piktochart", domain:"piktochart.com", desc:"Infographic and visual content maker", similarity:62},
+    {name:"VistaCreate", domain:"create.vista.com", desc:"Design tool with templates by VistaPrint", similarity:60},
+  ],
+  "hubspot.com": [
+    {name:"Salesforce", domain:"salesforce.com", desc:"Enterprise CRM and marketing cloud", similarity:85},
+    {name:"Marketo", domain:"marketo.com", desc:"Marketing automation by Adobe", similarity:72},
+    {name:"ActiveCampaign", domain:"activecampaign.com", desc:"Email marketing, automation, and CRM", similarity:68},
+    {name:"Mailchimp", domain:"mailchimp.com", desc:"Email marketing and automation platform", similarity:65},
+    {name:"Pardot", domain:"pardot.com", desc:"B2B marketing automation by Salesforce", similarity:70},
+  ],
+};
+
+function getDomainKey(domain) {
+  domain = domain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+  for (const key of Object.keys(competitorDB)) {
+    if (domain.includes(key.replace(/^www\./, ''))) return key;
+  }
+  return null;
+}
+
+function findCompetitors() {
+  const domain = document.getElementById('domainInput').value.trim();
+  const results = document.getElementById('results');
+  const loading = document.getElementById('loading');
+
+  if (!domain) { results.innerHTML = '<p style="color:#a1a1aa">Please enter a domain.</p>'; results.style.display='block'; return; }
+
+  loading.style.display = 'block';
+  results.style.display = 'none';
+
+  setTimeout(() => {
+    loading.style.display = 'none';
+    const key = getDomainKey(domain);
+    
+    if (key && competitorDB[key]) {
+      let html = '<h3 style="margin-bottom:16px">Top competitors for <span style="color:#22c55e">' + key + '</span></h3>';
+      competitorDB[key].forEach((c, i) => {
+        html += '<div class="result-card">';
+        html += '<div class="rank">' + (i+1) + '</div>';
+        html += '<div class="info"><h4>' + c.name + '</h4><div class="domain">' + c.domain + '</div><div class="desc">' + c.desc + '</div></div>';
+        html += '<div class="score">' + c.similarity + '% match</div>';
+        html += '</div>';
+      });
+      results.innerHTML = html;
+    } else {
+      const fuzzy = fuzzyMatch(domain);
+      if (fuzzy.length > 0) {
+        let html = '<h3 style="margin-bottom:16px">Best match results for <span style="color:#22c55e">' + domain + '</span></h3>';
+        html += '<p style="color:#a1a1aa;margin-bottom:16px">Exact match not found. Showing similar categories:</p>';
+        fuzzy.forEach((c, i) => {
+          html += '<div class="result-card">';
+          html += '<div class="rank">' + (i+1) + '</div>';
+          html += '<div class="info"><h4>' + c.name + '</h4><div class="domain">' + c.domain + '</div><div class="desc">' + c.desc + '</div></div>';
+          html += '<div class="score">' + c.similarity + '% match</div>';
+          html += '</div>';
+        });
+        results.innerHTML = html;
+      } else {
+        results.innerHTML = '<p style="color:#a1a1aa">No competitors found for "' + domain + '". Try a different domain like notion.so, figma.com, or shopify.com.</p><p style="margin-top:12px">For comprehensive competitor discovery across any domain, try <a href="https://followengine.com" style="color:#22c55e">FollowEngine\'s Competitor Finder</a>.</p>';
+      }
+    }
+    results.style.display = 'block';
+  }, 800);
+}
+
+function fuzzyMatch(domain) {
+  const terms = domain.toLowerCase().split(/[.\-\s]/);
+  let best = [];
+  for (const [key, comps] of Object.entries(competitorDB)) {
+    const score = terms.filter(t => key.includes(t) || comps.some(c => c.name.toLowerCase().includes(t) || c.desc.toLowerCase().includes(t))).length;
+    if (score > 0) best.push({key, score, comp: comps[0]});
+  }
+  return best.sort((a,b) => b.score - a.score).slice(0,3).map(b => ({name: b.comp.name, domain: b.comp.domain, desc: b.comp.desc, similarity: Math.min(95, 50 + b.score*15)}));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitive Landscape Builder — Free Tool | FollowEngine</title>
+<meta name="description" content="Map your competitive landscape. Position competitors on a strategic group map. Free tool, no signup.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+.back { color: #22c55e; text-decoration: none; font-size: 0.9rem; margin-bottom: 32px; display: inline-block; }
+h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+.subtitle { color: #a1a1aa; margin-bottom: 32px; }
+canvas { background: #18181b; border: 1px solid #27272a; border-radius: 16px; display: block; max-width: 100%; margin-bottom: 20px; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.form-group { margin-bottom: 0; }
+.form-group label { display: block; font-size: 0.85rem; color: #a1a1aa; margin-bottom: 6px; }
+.form-group input, .form-group select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; font-size: 0.9rem; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #22c55e; }
+.btn-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.btn { padding: 10px 20px; background: #22c55e; color: #000; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+.btn:hover { background: #16a34a; }
+.btn-outline { background: transparent; border: 1px solid #27272a; color: #f4f4f5; }
+.competitor-list { margin-bottom: 20px; }
+.comp-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; }
+.comp-item .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.comp-item button { margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.1rem; }
+.legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #a1a1aa; }
+.cta { text-align: center; margin-top: 48px; padding: 32px; background: #18181b; border: 1px solid #27272a; border-radius: 16px; }
+.cta a { display: inline-block; background: #22c55e; color: #000; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+.footer { text-align: center; padding: 40px 0; color: #71717a; font-size: 0.85rem; }
+.footer a { color: #22c55e; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back">← Back to Tools</a>
+  <h1>🗺️ Competitive Landscape Builder</h1>
+  <p class="subtitle">Position competitors on a strategic group map. Define your axes and plot the landscape.</p>
+
+  <div class="controls">
+    <div class="form-group">
+      <label>X-Axis (Left → Right)</label>
+      <input type="text" id="xAxis" value="Niche Focus → Broad Platform">
+    </div>
+    <div class="form-group">
+      <label>Y-Axis (Bottom → Top)</label>
+      <input type="text" id="yAxis" value="SMB → Enterprise">
+    </div>
+  </div>
+
+  <canvas id="canvas" width="850" height="500"></canvas>
+
+  <div class="form-group" style="margin-bottom:12px">
+    <label>Add Competitor</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="compName" placeholder="Name" style="flex:2">
+      <input type="range" id="compX" min="5" max="95" value="50" style="flex:1;accent-color:#22c55e">
+      <input type="range" id="compY" min="5" max="95" value="50" style="flex:1;accent-color:#22c55e">
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="addCompetitor()">Add Competitor</button>
+    <button class="btn btn-outline" onclick="clearAll()">Clear All</button>
+  </div>
+
+  <div class="competitor-list" id="compList"></div>
+
+  <div class="cta">
+    <p>🚀 Want real competitor intelligence, not just maps?</p>
+    <a href="https://followengine.com">Try FollowEngine Free →</a>
+  </div>
+</div>
+
+<div class="footer">
+  Powered by <a href="https://followengine.com">FollowEngine</a> — Competitor Growth Intelligence Platform
+</div>
+
+<script>
+const colors = ['#22c55e','#ef4444','#3b82f6','#f59e0b','#a855f7','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
+let competitors = [
+  {name:'Our Company', x:65, y:60, color:'#22c55e', isUs:true},
+  {name:'Comp A', x:75, y:80, color:'#ef4444'},
+  {name:'Comp B', x:40, y:50, color:'#3b82f6'},
+  {name:'Comp C', x:30, y:35, color:'#f59e0b'},
+];
+
+function drawCanvas() {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const pad = 60;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Grid
+  ctx.strokeStyle = '#27272a';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const vx = pad + (w-2*pad)*i/4, vy = pad + (h-2*pad)*i/4;
+    ctx.beginPath(); ctx.moveTo(vx, pad); ctx.lineTo(vx, h-pad); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad, vy); ctx.lineTo(w-pad, vy); ctx.stroke();
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#71717a';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'center';
+  const xAxis = document.getElementById('xAxis').value;
+  const parts = xAxis.split('→');
+  ctx.fillText((parts[0]||'').trim(), pad, h-10);
+  ctx.fillText((parts[1]||'').trim(), w-pad, h-10);
+
+  ctx.save();
+  ctx.translate(18, h/2);
+  ctx.rotate(-Math.PI/2);
+  const yParts = document.getElementById('yAxis').value.split('→');
+  ctx.fillText((yParts[0]||'').trim(), 0, 0);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(18, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText((yParts[1]||'').trim(), -(h-2*pad), 0);
+  ctx.restore();
+
+  // Quadrant labels
+  ctx.fillStyle = '#27272a';
+  ctx.font = '10px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('Niche / SMB', pad+40, h-pad-40);
+  ctx.fillText('Broad / SMB', w-pad-40, h-pad-40);
+  ctx.fillText('Niche / Enterprise', pad+40, pad+40);
+  ctx.fillText('Broad / Enterprise', w-pad-40, pad+40);
+
+  // Plot competitors
+  competitors.forEach((c, i) => {
+    const x = pad + (w-2*pad)*c.x/100;
+    const y = h - pad - (h-2*pad)*c.y/100;
+
+    // Halo for "us"
+    if (c.isUs) {
+      ctx.beginPath();
+      ctx.arc(x, y, 16, 0, Math.PI*2);
+      ctx.fillStyle = c.color + '20';
+      ctx.fill();
+      ctx.strokeStyle = c.color + '60';
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(x, y, c.isUs ? 10 : 7, 0, Math.PI*2);
+    ctx.fillStyle = c.color;
+    ctx.fill();
+
+    ctx.fillStyle = '#f4f4f5';
+    ctx.font = (c.isUs ? 'bold ' : '') + '11px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(c.name, x, y - 14);
+  });
+}
+
+function updateList() {
+  const list = document.getElementById('compList');
+  list.innerHTML = competitors.map((c,i) => 
+    '<div class="comp-item"><span class="dot" style="background:'+c.color+'"></span>' + c.name + (c.isUs?' (You)':'') + ' — X:'+c.x+'% Y:'+c.y+'%' + (c.isUs?'':'<button onclick="removeComp('+i+')">×</button>') + '</div>'
+  ).join('');
+}
+
+function addCompetitor() {
+  const name = document.getElementById('compName').value.trim();
+  if (!name) return;
+  const x = parseInt(document.getElementById('compX').value);
+  const y = parseInt(document.getElementById('compY').value);
+  const color = colors[competitors.filter(c=>!c.isUs).length % colors.length];
+  competitors.push({name, x, y, color});
+  document.getElementById('compName').value = '';
+  updateList();
+  drawCanvas();
+}
+
+function removeComp(i) {
+  competitors.splice(i, 1);
+  updateList();
+  drawCanvas();
+}
+
+function clearAll() {
+  competitors = competitors.filter(c => c.isUs);
+  updateList();
+  drawCanvas();
+}
+
+drawCanvas();
+updateList();
+</script>
+</body>
+</html>

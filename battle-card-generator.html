@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Card Generator — Free Tool | FollowEngine</title>
+<meta name="description" content="Generate professional competitive battle cards for free. Fill in competitor details and get a ready-to-use battle card.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; }
+.container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
+.back { color: #22c55e; text-decoration: none; font-size: 0.9rem; margin-bottom: 32px; display: inline-block; }
+h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+.subtitle { color: #a1a1aa; margin-bottom: 32px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #d4d4d8; }
+.form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #27272a; background: #18181b; color: #f4f4f5; font-size: 0.95rem; font-family: inherit; }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: #22c55e; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn { padding: 14px 32px; background: #22c55e; color: #000; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 8px; }
+.btn:hover { background: #16a34a; }
+.btn-secondary { background: #27272a; color: #f4f4f5; margin-top: 12px; }
+.output { display: none; margin-top: 32px; background: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 32px; }
+.output h2 { font-size: 1.3rem; margin-bottom: 20px; color: #22c55e; }
+.output .section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #27272a; }
+.output .section:last-child { border-bottom: 0; }
+.output .section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; margin-bottom: 8px; }
+.output .section p, .output .section li { font-size: 0.9rem; color: #d4d4d8; line-height: 1.6; }
+.output .feature-row { display: flex; justify-content: space-between; padding: 6px 0; }
+.output .feature-row .check { color: #22c55e; }
+.output .feature-row .cross { color: #ef4444; }
+.cta { text-align: center; margin-top: 48px; padding: 32px; background: #18181b; border: 1px solid #27272a; border-radius: 16px; }
+.cta a { display: inline-block; background: #22c55e; color: #000; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+.footer { text-align: center; padding: 40px 0; color: #71717a; font-size: 0.85rem; }
+.footer a { color: #22c55e; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back">← Back to Tools</a>
+  <h1>🛡️ Battle Card Generator</h1>
+  <p class="subtitle">Fill in the details below to generate a professional competitive battle card.</p>
+
+  <div class="form-group">
+    <label>Competitor Name *</label>
+    <input type="text" id="compName" placeholder="e.g., Acme Corp">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Founded</label>
+      <input type="text" id="compFounded" placeholder="e.g., 2018">
+    </div>
+    <div class="form-group">
+      <label>Funding</label>
+      <input type="text" id="compFunding" placeholder="e.g., $50M Series B">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Our Strengths (one per line)</label>
+    <textarea id="ourStrengths" placeholder="Best-in-class API with 200+ integrations&#10;AI-powered automation saves 10h/week&#10;99.9% uptime SLA"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Their Strengths (one per line)</label>
+    <textarea id="theirStrengths" placeholder="Largest market share in enterprise segment&#10;Strong brand recognition&#10;Extensive partner ecosystem"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Their Weaknesses (one per line)</label>
+    <textarea id="theirWeaknesses" placeholder="Slow release cycle (quarterly)&#10;Poor mobile experience&#10;Complex pricing with hidden fees"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Key Objection → Response (format: "They say X / You say Y", one per line)</label>
+    <textarea id="objections" placeholder="They're cheaper / Our TCO analysis shows 30% savings over 2 years&#10;Already using them / Customers switch for our AI automation, saving 10h/week&#10;Market leader / Innovation velocity matters more — we ship weekly"></textarea>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Our Win Rate vs Them (%)</label>
+      <input type="text" id="winRate" placeholder="e.g., 52">
+    </div>
+    <div class="form-group">
+      <label>Top Loss Reason</label>
+      <input type="text" id="lossReason" placeholder="e.g., Brand recognition">
+    </div>
+  </div>
+
+  <button class="btn" onclick="generateBattleCard()">Generate Battle Card</button>
+  <button class="btn btn-secondary" onclick="document.getElementById('output').style.display='none';window.scrollTo(0,0)">Clear</button>
+
+  <div class="output" id="output"></div>
+
+  <div class="cta">
+    <p>🚀 Want automated battle cards that update when competitors change?</p>
+    <a href="https://followengine.com">Try FollowEngine Free →</a>
+  </div>
+</div>
+
+<div class="footer">
+  Powered by <a href="https://followengine.com">FollowEngine</a> — Competitor Growth Intelligence Platform
+</div>
+
+<script>
+function generateBattleCard() {
+  const name = document.getElementById('compName').value.trim() || 'Competitor Name';
+  const founded = document.getElementById('compFounded').value.trim() || 'N/A';
+  const funding = document.getElementById('compFunding').value.trim() || 'N/A';
+  const ourStr = document.getElementById('ourStrengths').value.trim().split('\n').filter(l=>l);
+  const theirStr = document.getElementById('theirStrengths').value.trim().split('\n').filter(l=>l);
+  const theirWeak = document.getElementById('theirWeaknesses').value.trim().split('\n').filter(l=>l);
+  const objections = document.getElementById('objections').value.trim().split('\n').filter(l=>l);
+  const winRate = document.getElementById('winRate').value.trim() || '—';
+  const lossReason = document.getElementById('lossReason').value.trim() || '—';
+
+  let html = '<h2>⚔️ BATTLE CARD: ' + name + '</h2>';
+  html += '<p style="color:#71717a;font-size:0.85rem;margin-bottom:20px">Generated: ' + new Date().toLocaleDateString() + '</p>';
+
+  html += '<div class="section"><h3>Company Snapshot</h3>';
+  html += '<p>Founded: ' + founded + ' | Funding: ' + funding + '</p></div>';
+
+  if (theirStr.length || ourStr.length) {
+    html += '<div class="section"><h3>Competitive Positioning</h3>';
+    html += '<p style="margin-bottom:8px"><strong style="color:#22c55e">Our Advantages:</strong></p><ul>';
+    ourStr.forEach(s => html += '<li>✅ ' + s + '</li>');
+    html += '</ul><p style="margin:12px 0 8px"><strong style="color:#ef4444">Their Strengths (Neutralize):</strong></p><ul>';
+    theirStr.forEach(s => html += '<li>⚠️ ' + s + '</li>');
+    html += '</ul></div>';
+  }
+
+  if (theirWeak.length) {
+    html += '<div class="section"><h3>Weaknesses to Exploit</h3><ul>';
+    theirWeak.forEach(w => html += '<li>🎯 ' + w + '</li>');
+    html += '</ul></div>';
+  }
+
+  if (objections.length) {
+    html += '<div class="section"><h3>Objection Handling</h3>';
+    objections.forEach(o => {
+      const parts = o.split('/');
+      html += '<p style="margin-bottom:8px"><strong>They say:</strong> "' + (parts[0]||'').trim() + '"<br><strong style="color:#22c55e">You say:</strong> "' + (parts[1]||'').trim() + '"</p>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="section"><h3>Win/Loss Data</h3>';
+  html += '<p>Win Rate: <strong style="color:#22c55e">' + winRate + '%</strong> | Top Loss Reason: ' + lossReason + '</p></div>';
+
+  html += '<div class="section"><h3>Action Items</h3>';
+  html += '<ol><li>Update objection responses based on latest competitor moves</li><li>Share battle card with sales team this week</li><li>Track win rate changes monthly</li></ol></div>';
+
+  document.getElementById('output').innerHTML = html;
+  document.getElementById('output').style.display = 'block';
+  document.getElementById('output').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
